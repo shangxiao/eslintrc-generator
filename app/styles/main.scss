@@ -7,6 +7,14 @@ $icon-font-path: "../../bower_components/bootstrap-sass-official/assets/fonts/bo
   background-color: #eee;
 }
 
+.rule-description a {
+  display: inline-block;
+  min-width: 100%;
+  min-height: 100%;
+  padding: $table-cell-padding;
+  margin: -$table-cell-padding;
+}
+
 .stretch {
   width: 100%;
   height: 100%;
