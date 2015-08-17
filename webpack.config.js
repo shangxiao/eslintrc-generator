@@ -9,6 +9,7 @@ module.exports = {
     app: "./app/scripts/app.jsx",
     vendor: [
       'react/addons',
+      'lodash',
     ]
   },
   output: {
@@ -30,6 +31,7 @@ module.exports = {
         },
         exclude: /node_modules/
       },
+      { test: /\.json$/, loader: 'json' }
     ]
   },
   plugins: [

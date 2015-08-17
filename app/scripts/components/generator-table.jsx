@@ -9,33 +9,43 @@ export default class GeneratorTable extends React.Component {
   state = {
     eslintrc: '',
     includeDisabled: false,
+    includeDefaultOptions: false,
   }
 
   renderRows() {
     var currCategory = null;
-    return rules.map((rule) => {
-      var rows = []
-      if (currCategory != rule[0]) {
-        rows.push(<tr><td colSpan="5" className="separator"><h4>{rule[0]}</h4></td></tr>);
-        currCategory = rule[0];
-      }
-      rows.push(<GeneratorTableRow rule={rule} key={rule[1]} ref={rule[1]} />);
-      return rows;
+    return Object.keys(rules).map((category) => {
+      return [
+        <tr><td colSpan="7" className="separator"><h4>{category}</h4></td></tr>
+      ].concat(
+        rules[category].map((rule) => {
+          return <GeneratorTableRow rule={rule} key={rule.name} ref={rule.name} />;
+        })
+      );
     });
   }
 
   eslintrc() {
-    var refsToUse = Object.keys(this.refs);
+    var ruleValues = _.chain(this.refs)
+      .keys()
+      .reduce((acc, ref) => {
+        acc[ref] = this.refs[ref].getValue();
+        return acc;
+      }, {}, this)
+      .value();
+
     if (!this.state.includeDisabled) {
-      refsToUse = refsToUse.filter((ref) => {
-        return this.refs[ref].getValue() != 0;
-      });
+      ruleValues = _.reduce(ruleValues, (acc, val, key) => {
+        if (val != 0) {
+          acc[key] = val;
+        }
+        return acc;
+      }, {});
     }
-    var rules = refsToUse.map((key) => {
-      var ref = this.refs[key];
-      return '"' + key + '": ' + ref.getValue();
-    });
-    var rulestring = rules.join(",\n    ");
+
+    var rulestring = _.map(ruleValues, (val, key) => {
+      return '"' + key + '": ' + JSON.stringify(val);
+    }).join(",\n    ");
 
     return `{
   "rules": {
@@ -59,6 +69,13 @@ export default class GeneratorTable extends React.Component {
     });
   }
 
+  @autobind
+  updateIncludeDefaultOptions(e) {
+    this.setState({
+      includeDefaultOptions: e.target.checked,
+    });
+  }
+
   render() {
     return (
       <form role="form" className="container" onSubmit={this.generateEslintrc}>
@@ -79,6 +96,7 @@ export default class GeneratorTable extends React.Component {
         </table>
         <div className="post-form">
           <p><label><input type="checkbox" checked={this.state.includeDisabled} onChange={this.updateIncludeDisabled} /> Include disabled rules</label></p>
+          <p><label><input type="checkbox" checked={this.state.includeDefaultOptions} onChange={this.updateIncludeDefaultOptions} /> Include default options</label></p>
           <p><button className="btn btn-primary btn-lg">Generate rules</button></p>
         </div>
         <p>
