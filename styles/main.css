@@ -7585,8 +7585,24 @@ button.close {
 .fa-medium:before {
   content: ""; }
 
+label {
+  font-weight: normal; }
+
+.rule-options .form-control {
+  width: auto; }
+
+.rule-options textarea.form-control {
+  width: 100%; }
+
 .separator {
   background-color: #eee; }
+
+.rule-description a {
+  display: inline-block;
+  min-width: 100%;
+  min-height: 100%;
+  padding: 8px;
+  margin: -8px; }
 
 .stretch {
   width: 100%;
@@ -7600,5 +7616,26 @@ button.close {
 
 .post-form {
   text-align: right; }
-  .post-form label {
-    font-weight: normal; }
+
+.rule-options-cell {
+  padding: 0 !important;
+  border: 0px solid white !important;
+  border-top: 0px solid white !important;
+  border-bottom: 0px solid white !important; }
+
+.rule-options, .derp {
+  padding: 8px;
+  max-height: 200px;
+  transition: max-height .1s linear;
+  overflow: hidden; }
+
+.rule-options.nothing, .derp.nothing {
+  padding: 0;
+  max-height: 0;
+  transition: max-height .1s ease-out; }
+
+.option-header {
+  color: grey; }
+
+.options-table td {
+  padding-right: 1em; }
