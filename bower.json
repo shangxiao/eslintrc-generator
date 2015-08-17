@@ -1,8 +1,0 @@
-{
-  "name": "eslintrc-generator",
-  "version": "0.0.0",
-  "dependencies": {
-    "bootstrap-sass-official": "~3.3.3",
-    "font-awesome": "~4.3.0"
-  }
-}
