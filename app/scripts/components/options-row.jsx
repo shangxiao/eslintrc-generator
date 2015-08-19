@@ -7,6 +7,32 @@ export default class OptionsRow extends React.Component {
     values: {},
   }
 
+  schema = ''
+
+  constructor(props) {
+    super(props);
+
+    this.schema = this.flattenSchema(this.props.rule.schema);
+    if (this.props.input) {
+      if (this.props.rule.manualOption) {
+        this.state.manualValue = JSON.stringify(this.props.input);
+      } else {
+        this.extractValues(this.props.input);
+      }
+    }
+  }
+
+  extractValues(props) {
+    for (var key in props) {
+      var val = props[key];
+      if (typeof val == 'object' && val) {
+        this.extractValues(val);
+      } else {
+        this.state.values[key] = val;
+      }
+    }
+  }
+
   getValueByType(val, key) {
     if (val.type == 'object') {
       return _.mapValues(val.properties, this.getValueByType, this);
@@ -133,7 +159,7 @@ export default class OptionsRow extends React.Component {
 
     } else if (this.props.rule.schema) {
 
-      var schema = this.flattenSchema(this.props.rule.schema);
+      var schema = this.schema;
 
       var booleans = _.pick(schema, (val, key) => {
         return val.type == 'boolean';

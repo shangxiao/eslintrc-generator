@@ -11,6 +11,20 @@ export default class GeneratorTableRow extends React.Component {
     errorChecked: false,
   }
 
+  constructor(props) {
+    super(props);
+
+    if (props.input) {
+      var state = Array.isArray(props.input) ? props.input[0] : props.input;
+
+      if (state == 2) {
+        this.state.errorChecked = true;
+      } else if (state == 1) {
+        this.state.warningChecked = true;
+      }
+    }
+  }
+
   getValue() {
     var value = this.getEnabledValue();
     var option;
@@ -54,13 +68,19 @@ export default class GeneratorTableRow extends React.Component {
     var warningClass = 'checkbox-container ' + (this.state.warningChecked ? 'bg-info' : '');
     var errorClass = 'checkbox-container ' + (this.state.errorChecked ? 'bg-info' : '');
     var optionsRow = null;
+    var input = null;
+
+    if (this.props.input && Array.isArray(this.props.input)) {
+      input = this.props.input.slice();
+      input.splice(0, 1);
+    }
 
     if ((this.props.rule.schema &&
         (this.props.rule.schema.length &&
          this.props.rule.schema.length > 0 ||
          Object.keys(this.props.rule.schema).length > 0)) ||
          this.props.rule.manualOption) {
-      optionsRow = <OptionsRow ref="options" rule={this.props.rule} show={this.state.warningChecked || this.state.errorChecked} />;
+      optionsRow = <OptionsRow ref="options" rule={this.props.rule} show={this.state.warningChecked || this.state.errorChecked} input={input} />;
     }
 
     return (

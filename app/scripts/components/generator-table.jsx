@@ -7,22 +7,55 @@ import rules from '../rules';
 export default class GeneratorTable extends React.Component {
 
   state = {
-    eslintrc: '',
+    input: {},
+    output: '',
     includeDisabled: false,
     includeDefaultOptions: false,
+  }
+
+  open(inputStr) {
+    this.setState({
+      input: JSON.parse(inputStr),
+    });
+  }
+
+  @autobind
+  handleOpen(e) {
+    e.preventDefault();
+    $('#open-file').click();
+  }
+
+  @autobind
+  handleFile(e) {
+    var files = e.target.files;
+    if (files[0]) {
+      var reader = new FileReader();
+      reader.onload = (e) => {
+        this.open(e.target.result);
+      };
+      reader.readAsText(files[0]);
+    }
   }
 
   renderRows() {
     var currCategory = null;
     return Object.keys(rules).map((category) => {
       return [
-        <tr><td colSpan="7" className="separator"><h4>{category}</h4></td></tr>
+        <tbody>
+          <tr><td colSpan="7" className="separator"><h4>{category}</h4></td></tr>
+        </tbody>
       ].concat(
         rules[category].map((rule) => {
-          return <GeneratorTableRow rule={rule} key={rule.name} ref={rule.name} />;
-        })
+          var input = null;
+          var key = rule.name;
+          if (this.state.input.rules && this.state.input.rules[rule.name]) {
+            input = this.state.input.rules[rule.name];
+            key += JSON.stringify(input);
+          }
+          return <GeneratorTableRow rule={rule} key={key} ref={rule.name} input={input} />;
+        }, this)
       );
-    });
+    }, this);
   }
 
   eslintrc() {
@@ -58,7 +91,7 @@ export default class GeneratorTable extends React.Component {
   generateEslintrc(e) {
     e.preventDefault();
     this.setState({
-      eslintrc: this.eslintrc(),
+      output: this.eslintrc(),
     });
   }
 
@@ -80,6 +113,10 @@ export default class GeneratorTable extends React.Component {
     return (
       <form role="form" className="container" onSubmit={this.generateEslintrc}>
         <h1>ESLint Rule Generator</h1>
+        <p>
+          <button className="btn btn-default" onClick={this.handleOpen}><i className="fa fa-folder-open-o"></i> Open existing...</button>
+          <input id="open-file" type="file" onChange={this.handleFile} style={{display: 'none'}} />
+        </p>
         <table className="table table-bordered table-hover">
           <thead>
             <tr>
@@ -90,9 +127,7 @@ export default class GeneratorTable extends React.Component {
               <th>Error</th>
             </tr>
           </thead>
-          <tbody>
-            {this.renderRows()}
-          </tbody>
+          {this.renderRows()}
         </table>
         <div className="post-form">
           <p><label><input type="checkbox" checked={this.state.includeDisabled} onChange={this.updateIncludeDisabled} /> Include disabled rules</label></p>
@@ -100,7 +135,7 @@ export default class GeneratorTable extends React.Component {
           <p><button className="btn btn-primary btn-lg">Generate rules</button></p>
         </div>
         <p>
-          <textarea className="form-control" rows="20" value={this.state.eslintrc}/>
+          <textarea className="form-control" rows="20" value={this.state.output}/>
         </p>
       </form>
     );
