@@ -221,7 +221,8 @@ webpackJsonp([0],[
 	    _get(Object.getPrototypeOf(GeneratorTable.prototype), 'constructor', this).apply(this, arguments);
 
 	    this.state = {
-	      eslintrc: '',
+	      input: {},
+	      output: '',
 	      includeDisabled: false,
 	      includeDefaultOptions: false
 	    };
@@ -230,34 +231,75 @@ webpackJsonp([0],[
 	  _inherits(GeneratorTable, _React$Component);
 
 	  _createDecoratedClass(GeneratorTable, [{
+	    key: 'open',
+	    value: function open(inputStr) {
+	      this.setState({
+	        input: JSON.parse(inputStr)
+	      });
+	    }
+	  }, {
+	    key: 'handleOpen',
+	    decorators: [_autobindDecorator2['default']],
+	    value: function handleOpen(e) {
+	      e.preventDefault();
+	      $('#open-file').click();
+	    }
+	  }, {
+	    key: 'handleFile',
+	    decorators: [_autobindDecorator2['default']],
+	    value: function handleFile(e) {
+	      var _this = this;
+
+	      var files = e.target.files;
+	      if (files[0]) {
+	        var reader = new FileReader();
+	        reader.onload = function (e) {
+	          _this.open(e.target.result);
+	        };
+	        reader.readAsText(files[0]);
+	      }
+	    }
+	  }, {
 	    key: 'renderRows',
 	    value: function renderRows() {
+	      var _this2 = this;
+
 	      var currCategory = null;
 	      return Object.keys(_rules2['default']).map(function (category) {
 	        return [_react2['default'].createElement(
-	          'tr',
+	          'tbody',
 	          null,
 	          _react2['default'].createElement(
-	            'td',
-	            { colSpan: '7', className: 'separator' },
+	            'tr',
+	            null,
 	            _react2['default'].createElement(
-	              'h4',
-	              null,
-	              category
+	              'td',
+	              { colSpan: '7', className: 'separator' },
+	              _react2['default'].createElement(
+	                'h4',
+	                null,
+	                category
+	              )
 	            )
 	          )
 	        )].concat(_rules2['default'][category].map(function (rule) {
-	          return _react2['default'].createElement(_generatorTableRow2['default'], { rule: rule, key: rule.name, ref: rule.name });
-	        }));
-	      });
+	          var input = null;
+	          var key = rule.name;
+	          if (_this2.state.input.rules && _this2.state.input.rules[rule.name]) {
+	            input = _this2.state.input.rules[rule.name];
+	            key += JSON.stringify(input);
+	          }
+	          return _react2['default'].createElement(_generatorTableRow2['default'], { rule: rule, key: key, ref: rule.name, input: input });
+	        }, _this2));
+	      }, this);
 	    }
 	  }, {
 	    key: 'eslintrc',
 	    value: function eslintrc() {
-	      var _this = this;
+	      var _this3 = this;
 
 	      var ruleValues = _.chain(this.refs).keys().reduce(function (acc, ref) {
-	        acc[ref] = _this.refs[ref].getValue();
+	        acc[ref] = _this3.refs[ref].getValue();
 	        return acc;
 	      }, {}, this).value();
 
@@ -282,7 +324,7 @@ webpackJsonp([0],[
 	    value: function generateEslintrc(e) {
 	      e.preventDefault();
 	      this.setState({
-	        eslintrc: this.eslintrc()
+	        output: this.eslintrc()
 	      });
 	    }
 	  }, {
@@ -311,6 +353,17 @@ webpackJsonp([0],[
 	          'h1',
 	          null,
 	          'ESLint Rule Generator'
+	        ),
+	        _react2['default'].createElement(
+	          'p',
+	          null,
+	          _react2['default'].createElement(
+	            'button',
+	            { className: 'btn btn-default', onClick: this.handleOpen },
+	            _react2['default'].createElement('i', { className: 'fa fa-folder-open-o' }),
+	            ' Open existing...'
+	          ),
+	          _react2['default'].createElement('input', { id: 'open-file', type: 'file', onChange: this.handleFile, style: { display: 'none' } })
 	        ),
 	        _react2['default'].createElement(
 	          'table',
@@ -348,11 +401,7 @@ webpackJsonp([0],[
 	              )
 	            )
 	          ),
-	          _react2['default'].createElement(
-	            'tbody',
-	            null,
-	            this.renderRows()
-	          )
+	          this.renderRows()
 	        ),
 	        _react2['default'].createElement(
 	          'div',
@@ -390,7 +439,7 @@ webpackJsonp([0],[
 	        _react2['default'].createElement(
 	          'p',
 	          null,
-	          _react2['default'].createElement('textarea', { className: 'form-control', rows: '20', value: this.state.eslintrc })
+	          _react2['default'].createElement('textarea', { className: 'form-control', rows: '20', value: this.state.output })
 	        )
 	      );
 	    }
@@ -525,15 +574,24 @@ webpackJsonp([0],[
 	var _optionsRow2 = _interopRequireDefault(_optionsRow);
 
 	var GeneratorTableRow = (function (_React$Component) {
-	  function GeneratorTableRow() {
+	  function GeneratorTableRow(props) {
 	    _classCallCheck(this, GeneratorTableRow);
 
-	    _get(Object.getPrototypeOf(GeneratorTableRow.prototype), 'constructor', this).apply(this, arguments);
+	    _get(Object.getPrototypeOf(GeneratorTableRow.prototype), 'constructor', this).call(this, props);
 
 	    this.state = {
 	      warningChecked: false,
 	      errorChecked: false
 	    };
+	    if (props.input) {
+	      var state = Array.isArray(props.input) ? props.input[0] : props.input;
+
+	      if (state == 2) {
+	        this.state.errorChecked = true;
+	      } else if (state == 1) {
+	        this.state.warningChecked = true;
+	      }
+	    }
 	  }
 
 	  _inherits(GeneratorTableRow, _React$Component);
@@ -587,9 +645,15 @@ webpackJsonp([0],[
 	      var warningClass = 'checkbox-container ' + (this.state.warningChecked ? 'bg-info' : '');
 	      var errorClass = 'checkbox-container ' + (this.state.errorChecked ? 'bg-info' : '');
 	      var optionsRow = null;
+	      var input = null;
+
+	      if (this.props.input && Array.isArray(this.props.input)) {
+	        input = this.props.input.slice();
+	        input.splice(0, 1);
+	      }
 
 	      if (this.props.rule.schema && (this.props.rule.schema.length && this.props.rule.schema.length > 0 || Object.keys(this.props.rule.schema).length > 0) || this.props.rule.manualOption) {
-	        optionsRow = _react2['default'].createElement(_optionsRow2['default'], { ref: 'options', rule: this.props.rule, show: this.state.warningChecked || this.state.errorChecked });
+	        optionsRow = _react2['default'].createElement(_optionsRow2['default'], { ref: 'options', rule: this.props.rule, show: this.state.warningChecked || this.state.errorChecked, input: input });
 	      }
 
 	      return _react2['default'].createElement(
@@ -674,20 +738,41 @@ webpackJsonp([0],[
 	var _react2 = _interopRequireDefault(_react);
 
 	var OptionsRow = (function (_React$Component) {
-	  function OptionsRow() {
+	  function OptionsRow(props) {
 	    _classCallCheck(this, OptionsRow);
 
-	    _get(Object.getPrototypeOf(OptionsRow.prototype), 'constructor', this).apply(this, arguments);
+	    _get(Object.getPrototypeOf(OptionsRow.prototype), 'constructor', this).call(this, props);
 
 	    this.state = {
 	      manualValue: '',
 	      values: {}
 	    };
+	    this.schema = '';
+	    this.schema = this.flattenSchema(this.props.rule.schema);
+	    if (this.props.input) {
+	      if (this.props.rule.manualOption) {
+	        this.state.manualValue = JSON.stringify(this.props.input);
+	      } else {
+	        this.extractValues(this.props.input);
+	      }
+	    }
 	  }
 
 	  _inherits(OptionsRow, _React$Component);
 
 	  _createClass(OptionsRow, [{
+	    key: 'extractValues',
+	    value: function extractValues(props) {
+	      for (var key in props) {
+	        var val = props[key];
+	        if (typeof val == 'object' && val) {
+	          this.extractValues(val);
+	        } else {
+	          this.state.values[key] = val;
+	        }
+	      }
+	    }
+	  }, {
 	    key: 'getValueByType',
 	    value: function getValueByType(val, key) {
 	      if (val.type == 'object') {
@@ -847,7 +932,7 @@ webpackJsonp([0],[
 	        optionComponents = _react2['default'].createElement('textarea', { key: 'manual', onChange: update, defaultValue: this.state.manualValue, className: 'form-control', rows: '5' });
 	      } else if (this.props.rule.schema) {
 
-	        var schema = this.flattenSchema(this.props.rule.schema);
+	        var schema = this.schema;
 
 	        var booleans = _.pick(schema, function (val, key) {
 	          return val.type == 'boolean';
