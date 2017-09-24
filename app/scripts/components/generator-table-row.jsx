@@ -87,7 +87,7 @@ export default class GeneratorTableRow extends React.Component {
       <tbody style={{borderTop: 'none'}}>
         <tr>
           <td>{this.props.rule.name}</td>
-          <td className="rule-description"><a className="rule-description" href={url}>{this.props.rule.description}</a></td>
+          <td className="rule-description"><a className="rule-description" target="_blank" href={url}>{this.props.rule.description}</a></td>
           <td>{recommended}</td>
           <td className={warningClass}>
             <label className="stretch"><input type="checkbox" checked={this.state.warningChecked} onChange={this.updateWarning} /></label>
